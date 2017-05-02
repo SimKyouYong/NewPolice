@@ -1,7 +1,5 @@
 package co.kr.newpolice;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -18,8 +16,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import co.kr.newpolice.common.Check_Preferences;
+
+import java.util.ArrayList;
+
 import co.kr.newpolice.obj.Tableobj;
 
 public class LockScreenActivity extends Activity{
