@@ -1,7 +1,5 @@
 package co.kr.newpolice;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -18,13 +16,26 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.kakao.adfit.publisher.AdView;
+import com.kakao.adfit.publisher.AdView.AnimationType;
+import com.kakao.adfit.publisher.AdView.OnAdClickedListener;
+import com.kakao.adfit.publisher.AdView.OnAdClosedListener;
+import com.kakao.adfit.publisher.AdView.OnAdFailedListener;
+import com.kakao.adfit.publisher.AdView.OnAdLoadedListener;
+import com.kakao.adfit.publisher.AdView.OnAdWillLoadListener;
+import com.kakao.adfit.publisher.impl.AdError;
+
+import java.util.ArrayList;
+
 import co.kr.newpolice.common.Check_Preferences;
 import co.kr.newpolice.obj.Tableobj;
 
 public class ResultActivity extends Activity {
 	String Tag = "", Type = "", Level = "";
 	private static final String LOGTAG = "SKY";
-
+	private AdView adView = null;
+	private LinearLayout adWrapper = null;
 	Boolean next_flag = false;
 	LinearLayout view;
 	TextView title, exam, exam_r;
@@ -39,6 +50,7 @@ public class ResultActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_result);
+		adWrapper = (LinearLayout) findViewById(R.id.adWrapper);
 
 		view = (LinearLayout) findViewById(R.id.view);
 		Tag = getIntent().getStringExtra("tag");
@@ -68,7 +80,7 @@ public class ResultActivity extends Activity {
 		findViewById(R.id.btn_garbege).setOnClickListener(btnListener);
 		findViewById(R.id.btn_checkmarkon).setOnClickListener(btnListener);
 		findViewById(R.id.btn_checkmarkload).setOnClickListener(btnListener);
-
+		initAdam();
 		setInit();
 
 	}
@@ -917,5 +929,54 @@ public class ResultActivity extends Activity {
 			Log.e("selectData()Error! : ", se.toString());
 		}
 		return -1;
+	}
+	private void initAdam() {
+		// AdFit sdk 초기화 시작
+		adView = (AdView) findViewById(R.id.adview);
+		adView.setRequestInterval(5);
+
+		// 광고 클릭시 실행할 리스너
+		adView.setOnAdClickedListener(new OnAdClickedListener() {
+			public void OnAdClicked() {
+				Log.e(LOGTAG, "광고를 클릭했습니다.");
+			}
+		});
+
+		// 광고 내려받기 실패했을 경우에 실행할 리스너
+		adView.setOnAdFailedListener(new OnAdFailedListener() {
+			public void OnAdFailed(AdError arg0, String arg1) {
+				adWrapper.setVisibility(View.GONE);
+				Log.e(LOGTAG, arg1);
+			}
+		});
+
+		// 광고를 정상적으로 내려받았을 경우에 실행할 리스너
+		adView.setOnAdLoadedListener(new OnAdLoadedListener() {
+			public void OnAdLoaded() {
+				adWrapper.setVisibility(View.VISIBLE);
+				Log.e(LOGTAG, "광고가 정상적으로 로딩되었습니다.");
+			}
+		});
+
+		// 광고를 불러올때 실행할 리스너
+		adView.setOnAdWillLoadListener(new OnAdWillLoadListener() {
+			public void OnAdWillLoad(String arg1) {
+				Log.e(LOGTAG, "광고를 불러옵니다. : " + arg1);
+			}
+		});
+
+		// 광고를 닫았을때 실행할 리스너
+		adView.setOnAdClosedListener(new OnAdClosedListener() {
+			public void OnAdClosed() {
+				Log.e(LOGTAG, "광고를 닫았습니다.");
+			}
+		});
+
+		// 할당 받은 clientId 설정
+		adView.setClientId("DAN-1ib0yvnhuimur");
+		adView.setRequestInterval(12);
+		// Animation 효과 : 기본 값은 AnimationType.NONE
+		adView.setAnimationType(AnimationType.FLIP_HORIZONTAL);
+		adView.setVisibility(View.VISIBLE);
 	}
 }

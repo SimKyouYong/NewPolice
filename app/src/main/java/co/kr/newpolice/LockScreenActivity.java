@@ -17,6 +17,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.kakao.adfit.publisher.AdView;
+import com.kakao.adfit.publisher.AdView.AnimationType;
+import com.kakao.adfit.publisher.AdView.OnAdClickedListener;
+import com.kakao.adfit.publisher.AdView.OnAdClosedListener;
+import com.kakao.adfit.publisher.AdView.OnAdFailedListener;
+import com.kakao.adfit.publisher.AdView.OnAdLoadedListener;
+import com.kakao.adfit.publisher.AdView.OnAdWillLoadListener;
+import com.kakao.adfit.publisher.impl.AdError;
+
 import java.util.ArrayList;
 
 import co.kr.newpolice.obj.Tableobj;
@@ -25,6 +34,7 @@ public class LockScreenActivity extends Activity{
 
 	TextView title, exam, exam_r,title_sub;
 	ArrayList<Tableobj> arr = new ArrayList<Tableobj>();
+	private static final String LOGTAG = "SKY";
 
 	Button btn_x, btn_o, btn_prev, btn_next, btn_garbege, btn_checkmarkon,
 	btn_checkmarkload;
@@ -32,12 +42,14 @@ public class LockScreenActivity extends Activity{
 	LinearLayout view;
 	int random_index;
 	private Typeface ttf;
-
+	private AdView adView = null;
+	private LinearLayout adWrapper = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_lockscreen);
 		ttf = Typeface.createFromAsset(getAssets(), "HANYGO230.TTF");
+		adWrapper = (LinearLayout) findViewById(R.id.adWrapper);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED 
 				| WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -63,6 +75,7 @@ public class LockScreenActivity extends Activity{
 
 		findViewById(R.id.btn_x).setOnClickListener(btnListener);
 		findViewById(R.id.btn_o).setOnClickListener(btnListener);
+		initAdam();
 
 		setSetting();
 	}
@@ -465,5 +478,54 @@ public class LockScreenActivity extends Activity{
 			}
 		})
 		.show();
+	}
+	private void initAdam() {
+		// AdFit sdk 초기화 시작
+		adView = (AdView) findViewById(R.id.adview);
+		adView.setRequestInterval(5);
+
+		// 광고 클릭시 실행할 리스너
+		adView.setOnAdClickedListener(new OnAdClickedListener() {
+			public void OnAdClicked() {
+				Log.e(LOGTAG, "광고를 클릭했습니다.");
+			}
+		});
+
+		// 광고 내려받기 실패했을 경우에 실행할 리스너
+		adView.setOnAdFailedListener(new OnAdFailedListener() {
+			public void OnAdFailed(AdError arg0, String arg1) {
+				adWrapper.setVisibility(View.GONE);
+				Log.e(LOGTAG, arg1);
+			}
+		});
+
+		// 광고를 정상적으로 내려받았을 경우에 실행할 리스너
+		adView.setOnAdLoadedListener(new OnAdLoadedListener() {
+			public void OnAdLoaded() {
+				adWrapper.setVisibility(View.VISIBLE);
+				Log.e(LOGTAG, "광고가 정상적으로 로딩되었습니다.");
+			}
+		});
+
+		// 광고를 불러올때 실행할 리스너
+		adView.setOnAdWillLoadListener(new OnAdWillLoadListener() {
+			public void OnAdWillLoad(String arg1) {
+				Log.e(LOGTAG, "광고를 불러옵니다. : " + arg1);
+			}
+		});
+
+		// 광고를 닫았을때 실행할 리스너
+		adView.setOnAdClosedListener(new OnAdClosedListener() {
+			public void OnAdClosed() {
+				Log.e(LOGTAG, "광고를 닫았습니다.");
+			}
+		});
+
+		// 할당 받은 clientId 설정
+		adView.setClientId("DAN-1ib0yvnhuimur");
+		adView.setRequestInterval(12);
+		// Animation 효과 : 기본 값은 AnimationType.NONE
+		adView.setAnimationType(AnimationType.FLIP_HORIZONTAL);
+		adView.setVisibility(View.VISIBLE);
 	}
 }
